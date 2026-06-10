@@ -46,6 +46,10 @@ export default function RegisterPage() {
           <p className="auth-subtitle">Join DevBoard and share your projects</p>
         </div>
 
+        <div className="auth-demo-box">
+          New accounts start as Junior users. During presentation, use the admin demo login to promote users to Mentor or Admin.
+        </div>
+
         <form onSubmit={handleSubmit} className="auth-form">
           <label className="auth-label">Username</label>
           <input
@@ -90,7 +94,7 @@ export default function RegisterPage() {
             className="btn btn-primary auth-submit"
             disabled={loading}
           >
-            {loading ? 'Creating account…' : 'Register'}
+            {loading ? 'Creating account...' : 'Register'}
           </button>
         </form>
 

@@ -114,6 +114,12 @@ body {
   flex-wrap: wrap;
 }
 
+.project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .input-field {
   flex: 1;
   min-width: 200px;
@@ -238,6 +244,11 @@ body {
   white-space: nowrap;
 }
 
+.status-reviewed {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+}
+
 .card-description {
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -266,6 +277,17 @@ body {
 .card-date {
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.card-meta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-author {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
 }
 
 .card-actions {
@@ -426,6 +448,33 @@ body {
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
+}
+
+.auth-demo-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-secondary);
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.24);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 0.85rem;
+}
+
+.auth-demo-box strong {
+  color: var(--text-primary);
+}
+
+.auth-demo-box code {
+  color: #bfdbfe;
+  font-weight: 700;
+}
+
+.demo-login-btn {
+  margin-top: 8px;
+  justify-content: center;
 }
 
 .auth-submit {
@@ -655,6 +704,32 @@ body {
   color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 24px;
+  white-space: pre-wrap;
+}
+
+.code-input {
+  width: 100%;
+  min-height: 150px;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.code-review-section {
+  margin: 22px 0;
+}
+
+.code-snippet {
+  margin-top: 10px;
+  background: #020617;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  color: #dbeafe;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  overflow-x: auto;
   white-space: pre-wrap;
 }
 

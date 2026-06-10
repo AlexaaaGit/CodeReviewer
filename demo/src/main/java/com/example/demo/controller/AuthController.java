@@ -41,7 +41,7 @@ public class AuthController {
 
     /**
      * POST /api/auth/register
-     * Registers a new user with ROLE_USER by default.
+     * Registers a new user with ROLE_JUNIOR by default.
      * Returns 400 if username already exists.
      */
     @PostMapping("/register")
@@ -79,7 +79,7 @@ public class AuthController {
                 token,
                 user.getId(),
                 user.getUsername(),
-                user.getRole().name()   // "ROLE_USER" or "ROLE_ADMIN"
+                user.getRole().name()
         ));
     }
 }

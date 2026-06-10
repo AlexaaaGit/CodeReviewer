@@ -63,19 +63,30 @@ export default function ProductDetailPage() {
   if (loading) return <div className="loading-text">Loading project details...</div>;
   if (error || !product) return <div className="empty-text">{error || 'Project not found.'}</div>;
 
+  const reviewStatus = comments.length > 0 ? 'Reviewed' : 'Needs Review';
+
   return (
     <div className="product-detail-page">
       <Link to="/" className="btn btn-ghost btn-sm back-link">
-        ← Back to Projects
+        Back to Projects
       </Link>
 
       <article className="product-detail-card">
         <div className="card-header">
           <h2 className="detail-title">{product.title}</h2>
-          <span className="status-badge">Needs Review</span>
+          <span className={`status-badge ${comments.length > 0 ? 'status-reviewed' : ''}`}>
+            {reviewStatus}
+          </span>
         </div>
 
         <p className="detail-description">{product.description}</p>
+
+        {product.codeSnippet?.trim() && (
+          <section className="code-review-section">
+            <span className="section-label">Code for review:</span>
+            <pre className="code-snippet"><code>{product.codeSnippet}</code></pre>
+          </section>
+        )}
 
         {product.categories && product.categories.length > 0 && (
           <div className="detail-categories">
@@ -90,7 +101,7 @@ export default function ProductDetailPage() {
 
         <div className="detail-meta">
           <span>Submitted: {new Date(product.creationDate).toLocaleDateString()}</span>
-          {product.creatorUserId && <span>Creator ID: {product.creatorUserId}</span>}
+          {product.creatorUsername && <span>Submitted by @{product.creatorUsername}</span>}
         </div>
       </article>
 

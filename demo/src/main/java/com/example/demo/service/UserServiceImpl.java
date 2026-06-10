@@ -43,11 +43,24 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + userId));
 
-        // Parse the role string to the Role enum
-        Role newRole = Role.valueOf(request.role());
+        Role newRole = parseRole(request.role());
+        if (user.getRole() == Role.ROLE_ADMIN
+                && newRole != Role.ROLE_ADMIN
+                && userRepository.countByRole(Role.ROLE_ADMIN) <= 1) {
+            throw new IllegalStateException("At least one administrator account must remain active.");
+        }
+
         user.setRole(newRole);
 
         return toUserResponse(userRepository.save(user));
+    }
+
+    private Role parseRole(String role) {
+        try {
+            return Role.valueOf(role);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Unsupported role: " + role);
+        }
     }
 
     @Override
@@ -73,6 +86,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private ProductResponse toProductResponse(Product product) {
+        String creatorUsername = null;
+        if (product.getCreatorUserId() != null) {
+            creatorUsername = userRepository.findById(product.getCreatorUserId())
+                    .map(User::getUsername)
+                    .orElse(null);
+        }
+
         List<CategoryResponse> categoryResponses = product.getCategories() != null
                 ? product.getCategories().stream()
                     .filter(c -> !c.isDeleted())
@@ -89,9 +109,11 @@ public class UserServiceImpl implements UserService {
                 product.getTitle(),
                 product.getDescription(),
                 product.getImageUrl(),
+                product.getCodeSnippet(),
                 product.isDeleted(),
                 product.getCreationDate(),
                 product.getCreatorUserId(),
+                creatorUsername,
                 categoryResponses,
                 commentCount
         );

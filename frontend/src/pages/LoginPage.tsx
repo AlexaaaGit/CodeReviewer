@@ -25,13 +25,39 @@ export default function LoginPage() {
     }
   };
 
+  const handleDemoAdminLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await login('admin', 'admin123');
+      navigate('/profile');
+    } catch {
+      setError('Demo admin account is not available. Restart the backend to seed it.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
           <span className="logo-icon">&#60;/&#62;</span>
           <h1 className="auth-title">Sign in to DevBoard</h1>
-          <p className="auth-subtitle">Welcome back — continue your code review journey</p>
+          <p className="auth-subtitle">Welcome back - continue your code review journey</p>
+        </div>
+
+        <div className="auth-demo-box">
+          <strong>Presentation mode</strong>
+          <span>Use the admin demo account to show user roles, categories, and moderation.</span>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm demo-login-btn"
+            onClick={handleDemoAdminLogin}
+            disabled={loading}
+          >
+            Enter Admin Demo
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -66,7 +92,7 @@ export default function LoginPage() {
             className="btn btn-primary auth-submit"
             disabled={loading}
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

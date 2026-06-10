@@ -13,6 +13,7 @@ interface ProductFormProps {
 export default function ProductForm({ onSubmit }: ProductFormProps) {
   const [title, setTitle]               = useState('');
   const [description, setDescription]   = useState('');
+  const [codeSnippet, setCodeSnippet]   = useState('');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [categories, setCategories]     = useState<CategoryResponse[]>([]);
 
@@ -30,12 +31,14 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
     onSubmit({
       title,
       description,
+      codeSnippet,
       categoryIds: selectedCategoryIds,
     });
 
     // Reset form after submission
     setTitle('');
     setDescription('');
+    setCodeSnippet('');
     setSelectedCategoryIds([]);
   };
 
@@ -49,7 +52,7 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
   return (
     <section className="form-section">
       <h2 className="section-title">Submit your project for review</h2>
-      <form onSubmit={handleSubmit} className="add-form">
+      <form onSubmit={handleSubmit} className="project-form">
         <input
           className="input-field"
           placeholder="Project Title (e.g. 'Netflix Clone in React')"
@@ -62,6 +65,13 @@ export default function ProductForm({ onSubmit }: ProductFormProps) {
           placeholder="Description & Tech Stack"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+        />
+        <textarea
+          className="input-field code-input"
+          placeholder="Paste the code you want reviewed..."
+          value={codeSnippet}
+          onChange={(e) => setCodeSnippet(e.target.value)}
+          rows={8}
         />
         <button type="submit" className="btn btn-primary">+ Submit Project</button>
       </form>

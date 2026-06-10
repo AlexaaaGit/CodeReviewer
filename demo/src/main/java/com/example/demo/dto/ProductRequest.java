@@ -14,6 +14,8 @@ public record ProductRequest(
 
         String imageUrl,
 
+        String codeSnippet,
+
         // List of category IDs to assign to this product
         List<Long> categoryIds
 ) {}

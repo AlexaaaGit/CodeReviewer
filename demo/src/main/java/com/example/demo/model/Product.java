@@ -25,6 +25,9 @@ public class Product {
     private String description;
     private String imageUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String codeSnippet;
+
     // Soft delete flag — products are never physically removed from DB
     private boolean isDeleted = false;
 

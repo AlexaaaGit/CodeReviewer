@@ -10,9 +10,11 @@ export interface ProductResponse {
   title: string;
   description: string;
   imageUrl: string;
+  codeSnippet: string | null;
   isDeleted: boolean;
   creationDate: string;
   creatorUserId: number | null;
+  creatorUsername: string | null;
   categories: CategoryResponse[];
   commentCount: number;
 }
@@ -21,6 +23,7 @@ export interface ProductRequest {
   title: string;
   description: string;
   imageUrl?: string;
+  codeSnippet?: string;
   categoryIds?: number[];
 }
 

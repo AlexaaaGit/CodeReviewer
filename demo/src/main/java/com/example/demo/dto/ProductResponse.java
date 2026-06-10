@@ -11,9 +11,11 @@ public record ProductResponse(
         String title,
         String description,
         String imageUrl,
+        String codeSnippet,
         boolean isDeleted,
         LocalDateTime creationDate,
         Long creatorUserId,
+        String creatorUsername,
         List<CategoryResponse> categories,
         int commentCount
 ) {}

@@ -88,7 +88,7 @@ export default function HomePage() {
       {/* Product List */}
       <section className="products-section">
         <h2 className="section-title">
-          Projects awaiting review
+          Projects
           <span className="badge">{products.length}</span>
         </h2>
 
@@ -97,7 +97,7 @@ export default function HomePage() {
           <SearchBar
             value={searchTerm}
             onChange={handleSearchChange}
-            placeholder="🔍 Search by project name…"
+            placeholder="Search by project name..."
           />
           <CategorySelect
             value={categoryId}

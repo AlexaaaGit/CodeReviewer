@@ -5,8 +5,10 @@ import com.example.demo.dto.ProductRequest;
 import com.example.demo.dto.ProductResponse;
 import com.example.demo.model.Category;
 import com.example.demo.model.Product;
+import com.example.demo.model.User;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Page<ProductResponse> getProducts(String title, Long categoryId, Pageable pageable) {
@@ -62,6 +67,7 @@ public class ProductServiceImpl implements ProductService {
         product.setTitle(request.title());
         product.setDescription(request.description());
         product.setImageUrl(request.imageUrl());
+        product.setCodeSnippet(request.codeSnippet());
         product.setCreatorUserId(creatorUserId);
 
         // Assign categories if provided
@@ -83,6 +89,7 @@ public class ProductServiceImpl implements ProductService {
         product.setTitle(request.title());
         product.setDescription(request.description());
         product.setImageUrl(request.imageUrl());
+        product.setCodeSnippet(request.codeSnippet());
 
         // Re-assign categories
         assignCategories(product, request.categoryIds());
@@ -116,6 +123,13 @@ public class ProductServiceImpl implements ProductService {
      * Counts only non-deleted comments.
      */
     private ProductResponse toResponse(Product product) {
+        String creatorUsername = null;
+        if (product.getCreatorUserId() != null) {
+            creatorUsername = userRepository.findById(product.getCreatorUserId())
+                    .map(User::getUsername)
+                    .orElse(null);
+        }
+
         List<CategoryResponse> categoryResponses = product.getCategories() != null
                 ? product.getCategories().stream()
                     .filter(c -> !c.isDeleted())
@@ -132,9 +146,11 @@ public class ProductServiceImpl implements ProductService {
                 product.getTitle(),
                 product.getDescription(),
                 product.getImageUrl(),
+                product.getCodeSnippet(),
                 product.isDeleted(),
                 product.getCreationDate(),
                 product.getCreatorUserId(),
+                creatorUsername,
                 categoryResponses,
                 commentCount
         );

@@ -7,10 +7,12 @@ export default function AdminUsersPage() {
   const { isAdmin, user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [savingUserId, setSavingUserId] = useState<number | null>(null);
   const [error, setError] = useState('');
 
   const fetchUsers = () => {
     setLoading(true);
+    setError('');
     userApi.getAll()
       .then((res) => {
         setUsers(res.data);
@@ -29,11 +31,18 @@ export default function AdminUsersPage() {
   }, [isAdmin]);
 
   const handleRoleChange = (userId: number, newRole: string) => {
+    setSavingUserId(userId);
+    setError('');
     userApi.updateRole(userId, { role: newRole })
       .then(() => {
         fetchUsers();
       })
-      .catch((err) => console.error('Failed to update user role:', err));
+      .catch((err) => {
+        console.error('Failed to update user role:', err);
+        const msg = err?.response?.data?.message ?? err?.response?.data;
+        setError(typeof msg === 'string' ? msg : 'Failed to update user role.');
+      })
+      .finally(() => setSavingUserId(null));
   };
 
   if (!isAdmin) {
@@ -83,6 +92,7 @@ export default function AdminUsersPage() {
                           className="input-field table-select"
                           value={u.role}
                           onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                          disabled={savingUserId === u.id}
                         >
                           <option value="ROLE_JUNIOR">ROLE_JUNIOR</option>
                           <option value="ROLE_MENTOR">ROLE_MENTOR</option>

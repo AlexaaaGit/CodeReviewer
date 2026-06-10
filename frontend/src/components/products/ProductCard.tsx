@@ -20,6 +20,8 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
   const [editing, setEditing]           = useState(false);
   const [editTitle, setEditTitle]       = useState(product.title);
   const [editDescription, setEditDescription] = useState(product.description);
+  const [editCodeSnippet, setEditCodeSnippet] = useState(product.codeSnippet ?? '');
+  const reviewStatus = product.commentCount > 0 ? 'Reviewed' : 'Needs Review';
 
   // Save edited product
   const handleSave = () => {
@@ -27,6 +29,7 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
       title: editTitle,
       description: editDescription,
       imageUrl: product.imageUrl,
+      codeSnippet: editCodeSnippet,
       categoryIds: product.categories.map((c) => c.id),
     });
     setEditing(false);
@@ -56,6 +59,13 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
             onChange={(e) => setEditDescription(e.target.value)}
             placeholder="Description"
           />
+          <textarea
+            className="input-field code-input"
+            value={editCodeSnippet}
+            onChange={(e) => setEditCodeSnippet(e.target.value)}
+            placeholder="Code for review"
+            rows={6}
+          />
           <div className="card-actions">
             <button onClick={handleSave} className="btn btn-success btn-sm">Save</button>
             <button onClick={() => setEditing(false)} className="btn btn-ghost btn-sm">Cancel</button>
@@ -68,7 +78,9 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
             <Link to={`/products/${product.id}`} className="card-title-link">
               <h3 className="card-title">{product.title}</h3>
             </Link>
-            <span className="status-badge">Needs Review</span>
+            <span className={`status-badge ${product.commentCount > 0 ? 'status-reviewed' : ''}`}>
+              {reviewStatus}
+            </span>
           </div>
 
           <p className="card-description">{product.description}</p>
@@ -86,15 +98,20 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
           {product.commentCount > 0 && (
             <div className="comments-preview">
               <span className="comments-count">
-                💬 {product.commentCount} review{product.commentCount > 1 ? 's' : ''}
+                {product.commentCount} review{product.commentCount > 1 ? 's' : ''}
               </span>
             </div>
           )}
 
           <div className="card-footer">
-            <span className="card-date">
-              {new Date(product.creationDate).toLocaleDateString()}
-            </span>
+            <div className="card-meta-stack">
+              <span className="card-date">
+                {new Date(product.creationDate).toLocaleDateString()}
+              </span>
+              {product.creatorUsername && (
+                <span className="card-author">by @{product.creatorUsername}</span>
+              )}
+            </div>
             <div className="card-actions">
               {/* View details link */}
               <Link to={`/products/${product.id}`} className="btn btn-ghost btn-sm">
@@ -103,13 +120,13 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
               {/* Edit button — Creator (Junior) or Admin only */}
               {(isAdmin || (user && user.role === 'ROLE_JUNIOR' && product.creatorUserId === user.id)) && (
                 <button onClick={() => setEditing(true)} className="btn btn-ghost btn-sm">
-                  ✏️ Edit
+                  Edit
                 </button>
               )}
               {/* Delete button — ADMIN only */}
               {isAdmin && (
                 <button onClick={handleDelete} className="btn btn-danger btn-sm">
-                  🗑️ Delete
+                  Delete
                 </button>
               )}
             </div>
