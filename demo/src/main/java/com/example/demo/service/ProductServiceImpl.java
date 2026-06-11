@@ -5,6 +5,8 @@ import com.example.demo.dto.ProductRequest;
 import com.example.demo.dto.ProductResponse;
 import com.example.demo.model.Category;
 import com.example.demo.model.Product;
+import com.example.demo.model.ReviewStatus;
+import com.example.demo.model.SubmissionType;
 import com.example.demo.model.User;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ProductRepository;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,30 +34,22 @@ public class ProductServiceImpl implements ProductService {
     private UserRepository userRepository;
 
     @Override
-    public Page<ProductResponse> getProducts(String title, Long categoryId, Pageable pageable) {
-        Page<Product> page;
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> getProducts(String title, Long categoryId, ReviewStatus status, Pageable pageable) {
+        ReviewStatus effectiveStatus = status == null ? ReviewStatus.ALL : status;
+        String normalizedTitle = title == null || title.isBlank() ? null : title.trim();
 
-        boolean hasTitle = title != null && !title.isBlank();
-        boolean hasCategory = categoryId != null;
-
-        if (hasTitle && hasCategory) {
-            // Filter by both title and category
-            page = productRepository.findByTitleContainingIgnoreCaseAndCategoriesIdAndIsDeletedFalse(title, categoryId, pageable);
-        } else if (hasTitle) {
-            // Search by title only (case-insensitive), only non-deleted products
-            page = productRepository.findByTitleContainingIgnoreCaseAndIsDeletedFalse(title, pageable);
-        } else if (hasCategory) {
-            // Filter by category only
-            page = productRepository.findByCategoriesIdAndIsDeletedFalse(categoryId, pageable);
-        } else {
-            // No filters — all non-deleted products, paginated
-            page = productRepository.findByIsDeletedFalse(pageable);
-        }
-
-        return page.map(this::toResponse);
+        return productRepository.findFiltered(
+                        normalizedTitle,
+                        categoryId,
+                        effectiveStatus == ReviewStatus.REVIEWED,
+                        effectiveStatus == ReviewStatus.NEEDS_REVIEW,
+                        pageable)
+                .map(this::toResponse);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + id));
@@ -68,9 +63,10 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.description());
         product.setImageUrl(request.imageUrl());
         product.setCodeSnippet(request.codeSnippet());
+        product.setSubmissionType(request.submissionType());
+        product.setSourceUrl(request.sourceUrl());
         product.setCreatorUserId(creatorUserId);
 
-        // Assign categories if provided
         assignCategories(product, request.categoryIds());
 
         return toResponse(productRepository.save(product));
@@ -81,7 +77,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id: " + id));
 
-        // Ownership validation: JUNIOR can only edit their own projects
         if (!isAdmin && (product.getCreatorUserId() == null || !product.getCreatorUserId().equals(currentUserId))) {
             throw new org.springframework.security.access.AccessDeniedException("You are not authorized to edit this project.");
         }
@@ -90,8 +85,9 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(request.description());
         product.setImageUrl(request.imageUrl());
         product.setCodeSnippet(request.codeSnippet());
+        product.setSubmissionType(request.submissionType());
+        product.setSourceUrl(request.sourceUrl());
 
-        // Re-assign categories
         assignCategories(product, request.categoryIds());
 
         return toResponse(productRepository.save(product));
@@ -105,10 +101,6 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
-    /**
-     * Assigns categories from a list of IDs to the given product.
-     * Clears previous assignments and sets new ones.
-     */
     private void assignCategories(Product product, List<Long> categoryIds) {
         if (categoryIds != null && !categoryIds.isEmpty()) {
             List<Category> categories = categoryRepository.findAllById(categoryIds);
@@ -118,10 +110,6 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    /**
-     * Converts a Product entity to a ProductResponse DTO.
-     * Counts only non-deleted comments.
-     */
     private ProductResponse toResponse(Product product) {
         String creatorUsername = null;
         if (product.getCreatorUserId() != null) {
@@ -147,6 +135,8 @@ public class ProductServiceImpl implements ProductService {
                 product.getDescription(),
                 product.getImageUrl(),
                 product.getCodeSnippet(),
+                product.getSubmissionType() != null ? product.getSubmissionType().name() : SubmissionType.PASTE.name(),
+                product.getSourceUrl(),
                 product.isDeleted(),
                 product.getCreationDate(),
                 product.getCreatorUserId(),
@@ -155,4 +145,5 @@ public class ProductServiceImpl implements ProductService {
                 commentCount
         );
     }
+
 }

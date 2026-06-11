@@ -28,6 +28,11 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String codeSnippet;
 
+    @Enumerated(EnumType.STRING)
+    private SubmissionType submissionType = SubmissionType.PASTE;
+
+    private String sourceUrl;
+
     // Soft delete flag — products are never physically removed from DB
     private boolean isDeleted = false;
 

@@ -8,6 +8,7 @@ import com.example.demo.dto.UserUpdateRequest;
 import com.example.demo.model.Comment;
 import com.example.demo.model.Product;
 import com.example.demo.model.Role;
+import com.example.demo.model.SubmissionType;
 import com.example.demo.model.User;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.ProductRepository;
@@ -110,6 +111,8 @@ public class UserServiceImpl implements UserService {
                 product.getDescription(),
                 product.getImageUrl(),
                 product.getCodeSnippet(),
+                product.getSubmissionType() != null ? product.getSubmissionType().name() : SubmissionType.PASTE.name(),
+                product.getSourceUrl(),
                 product.isDeleted(),
                 product.getCreationDate(),
                 product.getCreatorUserId(),

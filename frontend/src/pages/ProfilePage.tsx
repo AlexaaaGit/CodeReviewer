@@ -133,6 +133,9 @@ export default function ProfilePage() {
                           {product.commentCount > 0 ? `${product.commentCount} review${product.commentCount > 1 ? 's' : ''}` : 'Awaiting review'}
                         </span>
                       </div>
+                      <div className="profile-source-line">
+                        {product.submissionType === 'PASTE' ? 'Pasted code' : product.submissionType === 'GITHUB' ? 'GitHub link' : 'File link'}
+                      </div>
                       <p className="profile-card-desc">{product.description}</p>
                       {product.categories && product.categories.length > 0 && (
                         <div className="category-badges">

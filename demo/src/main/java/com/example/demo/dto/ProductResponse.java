@@ -12,6 +12,8 @@ public record ProductResponse(
         String description,
         String imageUrl,
         String codeSnippet,
+        String submissionType,
+        String sourceUrl,
         boolean isDeleted,
         LocalDateTime creationDate,
         Long creatorUserId,

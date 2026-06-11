@@ -20,8 +20,13 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
   const [editing, setEditing]           = useState(false);
   const [editTitle, setEditTitle]       = useState(product.title);
   const [editDescription, setEditDescription] = useState(product.description);
+  const [editSubmissionType, setEditSubmissionType] = useState(product.submissionType);
   const [editCodeSnippet, setEditCodeSnippet] = useState(product.codeSnippet ?? '');
+  const [editSourceUrl, setEditSourceUrl] = useState(product.sourceUrl ?? '');
   const reviewStatus = product.commentCount > 0 ? 'Reviewed' : 'Needs Review';
+  const sourceLabel =
+    product.submissionType === 'GITHUB' ? 'GitHub' :
+    product.submissionType === 'FILE' ? 'File' : 'Pasted code';
 
   // Save edited product
   const handleSave = () => {
@@ -29,7 +34,9 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
       title: editTitle,
       description: editDescription,
       imageUrl: product.imageUrl,
+      submissionType: editSubmissionType,
       codeSnippet: editCodeSnippet,
+      sourceUrl: editSourceUrl,
       categoryIds: product.categories.map((c) => c.id),
     });
     setEditing(false);
@@ -59,13 +66,31 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
             onChange={(e) => setEditDescription(e.target.value)}
             placeholder="Description"
           />
-          <textarea
-            className="input-field code-input"
-            value={editCodeSnippet}
-            onChange={(e) => setEditCodeSnippet(e.target.value)}
-            placeholder="Code for review"
-            rows={6}
-          />
+          <select
+            className="input-field"
+            value={editSubmissionType}
+            onChange={(e) => setEditSubmissionType(e.target.value as 'PASTE' | 'GITHUB' | 'FILE')}
+          >
+            <option value="PASTE">Paste code directly</option>
+            <option value="GITHUB">GitHub / Gist link</option>
+            <option value="FILE">File / raw link</option>
+          </select>
+          {editSubmissionType === 'PASTE' ? (
+            <textarea
+              className="input-field code-input"
+              value={editCodeSnippet}
+              onChange={(e) => setEditCodeSnippet(e.target.value)}
+              placeholder="Code for review"
+              rows={6}
+            />
+          ) : (
+            <input
+              className="input-field"
+              value={editSourceUrl}
+              onChange={(e) => setEditSourceUrl(e.target.value)}
+              placeholder={editSubmissionType === 'GITHUB' ? 'GitHub or Gist URL' : 'File or raw URL'}
+            />
+          )}
           <div className="card-actions">
             <button onClick={handleSave} className="btn btn-success btn-sm">Save</button>
             <button onClick={() => setEditing(false)} className="btn btn-ghost btn-sm">Cancel</button>
@@ -78,9 +103,12 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
             <Link to={`/products/${product.id}`} className="card-title-link">
               <h3 className="card-title">{product.title}</h3>
             </Link>
-            <span className={`status-badge ${product.commentCount > 0 ? 'status-reviewed' : ''}`}>
-              {reviewStatus}
-            </span>
+            <div className="card-badges">
+              <span className="source-badge">{sourceLabel}</span>
+              <span className={`status-badge ${product.commentCount > 0 ? 'status-reviewed' : ''}`}>
+                {reviewStatus}
+              </span>
+            </div>
           </div>
 
           <p className="card-description">{product.description}</p>
@@ -100,6 +128,14 @@ export default function ProductCard({ product, onUpdate, onDelete }: ProductCard
               <span className="comments-count">
                 {product.commentCount} review{product.commentCount > 1 ? 's' : ''}
               </span>
+            </div>
+          )}
+
+          {product.sourceUrl && product.submissionType !== 'PASTE' && (
+            <div className="source-link-row">
+              <a href={product.sourceUrl} target="_blank" rel="noreferrer">
+                Open source link
+              </a>
             </div>
           )}
 

@@ -11,6 +11,8 @@ export interface ProductResponse {
   description: string;
   imageUrl: string;
   codeSnippet: string | null;
+  submissionType: 'PASTE' | 'GITHUB' | 'FILE';
+  sourceUrl: string | null;
   isDeleted: boolean;
   creationDate: string;
   creatorUserId: number | null;
@@ -19,11 +21,15 @@ export interface ProductResponse {
   commentCount: number;
 }
 
+export type ReviewStatus = 'ALL' | 'REVIEWED' | 'NEEDS_REVIEW';
+
 export interface ProductRequest {
   title: string;
   description: string;
   imageUrl?: string;
   codeSnippet?: string;
+  submissionType?: 'PASTE' | 'GITHUB' | 'FILE';
+  sourceUrl?: string;
   categoryIds?: number[];
 }
 

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.ProductRequest;
 import com.example.demo.dto.ProductResponse;
+import com.example.demo.model.ReviewStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 public interface ProductService {
 
     /** Returns a paginated list of non-deleted products, optionally filtered by title and/or category. */
-    Page<ProductResponse> getProducts(String title, Long categoryId, Pageable pageable);
+    Page<ProductResponse> getProducts(String title, Long categoryId, ReviewStatus status, Pageable pageable);
 
     /** Returns a single product by ID. */
     ProductResponse getProductById(Long id);

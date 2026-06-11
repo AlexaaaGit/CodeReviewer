@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -29,9 +31,22 @@ public class RestExceptionHandler {
         return build(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(this::formatFieldError)
+                .findFirst()
+                .orElse("Validation failed.");
+        return build(HttpStatus.BAD_REQUEST, message);
+    }
+
     private ResponseEntity<ApiError> build(HttpStatus status, String message) {
         return ResponseEntity
                 .status(status)
                 .body(new ApiError(message, status.value(), Instant.now()));
+    }
+
+    private String formatFieldError(FieldError error) {
+        return error.getDefaultMessage() != null ? error.getDefaultMessage() : "Validation failed.";
     }
 }

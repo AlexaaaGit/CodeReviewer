@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ProductRequest;
 import com.example.demo.dto.ProductResponse;
+import com.example.demo.model.ReviewStatus;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.ProductService;
@@ -36,10 +37,11 @@ public class ProductController {
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "6")  int size,
             @RequestParam(required = false)    String title,
-            @RequestParam(required = false)    Long categoryId) {
+            @RequestParam(required = false)    Long categoryId,
+            @RequestParam(defaultValue = "ALL") ReviewStatus status) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
-        return productService.getProducts(title, categoryId, pageable);
+        return productService.getProducts(title, categoryId, status, pageable);
     }
 
     /**

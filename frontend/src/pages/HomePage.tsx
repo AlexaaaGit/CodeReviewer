@@ -6,7 +6,7 @@ import ProductForm from '../components/products/ProductForm';
 import SearchBar from '../components/common/SearchBar';
 import Pagination from '../components/common/Pagination';
 import CategorySelect from '../components/categories/CategorySelect';
-import type { ProductResponse, ProductRequest } from '../types';
+import type { ProductResponse, ProductRequest, ReviewStatus } from '../types';
 
 const PAGE_SIZE = 6;
 
@@ -22,12 +22,13 @@ export default function HomePage() {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [reviewStatus, setReviewStatus] = useState<ReviewStatus>('ALL');
   const [loading, setLoading] = useState(true);
 
   // Fetch products with current filters and pagination
-  const fetchProducts = useCallback((page: number, search: string, catId: number | null) => {
+  const fetchProducts = useCallback((page: number, search: string, catId: number | null, status: ReviewStatus) => {
     setLoading(true);
-    productApi.getAll(page, PAGE_SIZE, search || undefined, catId || undefined)
+    productApi.getAll(page, PAGE_SIZE, search || undefined, catId || undefined, status)
       .then((response) => {
         setProducts(response.data.content ?? []);
         setTotalPages(response.data.totalPages ?? 0);
@@ -44,8 +45,8 @@ export default function HomePage() {
 
   // Re-fetch when page, search, or category filter changes
   useEffect(() => {
-    fetchProducts(currentPage, searchTerm, categoryId);
-  }, [currentPage, searchTerm, categoryId, fetchProducts]);
+    fetchProducts(currentPage, searchTerm, categoryId, reviewStatus);
+  }, [currentPage, searchTerm, categoryId, reviewStatus, fetchProducts]);
 
   // Handle search input change — reset to first page
   const handleSearchChange = (value: string) => {
@@ -59,24 +60,29 @@ export default function HomePage() {
     setCurrentPage(0);
   };
 
+  const handleReviewStatusChange = (status: ReviewStatus) => {
+    setReviewStatus(status);
+    setCurrentPage(0);
+  };
+
   // Add a new product
   const handleAddProduct = (data: ProductRequest) => {
     productApi.create(data)
-      .then(() => fetchProducts(0, searchTerm, categoryId))
+      .then(() => fetchProducts(0, searchTerm, categoryId, reviewStatus))
       .catch((err) => console.error('Failed to add product:', err));
   };
 
   // Update an existing product
   const handleUpdateProduct = (id: number, data: ProductRequest) => {
     productApi.update(id, data)
-      .then(() => fetchProducts(currentPage, searchTerm, categoryId))
+      .then(() => fetchProducts(currentPage, searchTerm, categoryId, reviewStatus))
       .catch((err) => console.error('Failed to update product:', err));
   };
 
   // Soft-delete a product (admin only)
   const handleDeleteProduct = (id: number) => {
     productApi.delete(id)
-      .then(() => fetchProducts(currentPage, searchTerm, categoryId))
+      .then(() => fetchProducts(currentPage, searchTerm, categoryId, reviewStatus))
       .catch((err) => console.error('Failed to delete product:', err));
   };
 
@@ -103,6 +109,15 @@ export default function HomePage() {
             value={categoryId}
             onChange={handleCategoryChange}
           />
+          <select
+            className="input-field category-select"
+            value={reviewStatus}
+            onChange={(e) => handleReviewStatusChange(e.target.value as ReviewStatus)}
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="REVIEWED">Reviewed</option>
+            <option value="NEEDS_REVIEW">Needs Review</option>
+          </select>
         </div>
 
         {loading ? (

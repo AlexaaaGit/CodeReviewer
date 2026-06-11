@@ -64,6 +64,9 @@ export default function ProductDetailPage() {
   if (error || !product) return <div className="empty-text">{error || 'Project not found.'}</div>;
 
   const reviewStatus = comments.length > 0 ? 'Reviewed' : 'Needs Review';
+  const sourceLabel =
+    product.submissionType === 'GITHUB' ? 'GitHub repository' :
+    product.submissionType === 'FILE' ? 'File link' : 'Pasted code';
 
   return (
     <div className="product-detail-page">
@@ -80,6 +83,15 @@ export default function ProductDetailPage() {
         </div>
 
         <p className="detail-description">{product.description}</p>
+
+        {product.submissionType !== 'PASTE' && product.sourceUrl && (
+          <section className="code-review-section">
+            <span className="section-label">{sourceLabel}:</span>
+            <a href={product.sourceUrl} target="_blank" rel="noreferrer" className="source-link">
+              {product.sourceUrl}
+            </a>
+          </section>
+        )}
 
         {product.codeSnippet?.trim() && (
           <section className="code-review-section">
